@@ -35,6 +35,11 @@ os.chdir(EXE_DIR)
 
 app = Flask(__name__, static_folder=UI_DIR)
 app.secret_key = os.environ.get('SECRET_KEY', 'ccr-dev-change-in-prod')
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = False
+
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
 claude = Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
 
@@ -530,6 +535,12 @@ def dashboard():
     if not session.get('authenticated'):
         return redirect('/')
     return no_cache(send_from_directory(UI_DIR, 'dashboard.html'))
+
+@app.route('/embed')
+def embed():
+    if not session.get('authenticated'):
+        return '<p style="font-family:sans-serif;padding:2rem;color:#666">Session expired. Please <a href="/">log in again</a>.</p>', 401
+    return no_cache(send_from_directory(UI_DIR, 'chat.html'))
 
 @app.route('/logo.png')
 def logo():

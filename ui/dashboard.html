@@ -548,7 +548,7 @@
       transition: background 0.18s;
     }
     .meridian-bar-btn:hover { background: rgba(90,170,40,0.28); }
-    #meridian-frame { flex: 1; width: 100%; border: none; display: none; }
+    #meridian-frame { flex: 1; width: 100%; border: none; display: block; }
     #meridian-offline {
       flex: 1; display: flex; align-items: center; justify-content: center;
       background: var(--bg-deep);
@@ -1065,22 +1065,6 @@
         <!-- Live iframe (shown when Meridian is running) -->
         <iframe id="meridian-frame" src="/chat"></iframe>
 
-        <!-- Offline fallback -->
-        <div id="meridian-offline">
-          <div class="meridian-offline-card">
-            <div class="meridian-offline-icon">
-              <i data-lucide="bot" style="width:26px;height:26px;"></i>
-            </div>
-            <div class="meridian-offline-title">Meridian isn't running</div>
-            <div class="meridian-offline-sub">Meridian is CCR's proprietary AI research platform — it searches your research docs, pulls live EIA energy data, and sweeps sector news in real time. Start it to connect.</div>
-            <div class="meridian-offline-steps">
-              <p>If Meridian is not loading, try refreshing the page. If the problem persists, please contact your CCR account manager.</p>
-            </div>
-            <button class="meridian-retry-btn" onclick="checkMeridian()">
-              <i data-lucide="refresh-cw" class="icon-sm"></i>Retry connection
-            </button>
-          </div>
-        </div>
       </div>
 
     </div>
@@ -1118,23 +1102,10 @@
 
   // ── Meridian connectivity ──────────────────────────────────────────────────
   function checkMeridian() {
-    const frame   = document.getElementById('meridian-frame');
-    const offline = document.getElementById('meridian-offline');
-    const dot     = document.getElementById('meridian-dot');
-
+    const dot = document.getElementById('meridian-dot');
     fetch('/api/me')
-      .then(r => {
-        if (!r.ok) throw new Error('Not authenticated');
-        // Meridian is up — iframe is already pointing to /chat
-        frame.style.display = 'block';
-        offline.style.display = 'none';
-        dot.classList.remove('offline');
-      })
-      .catch(() => {
-        frame.style.display = 'none';
-        offline.style.display = 'flex';
-        dot.classList.add('offline');
-      });
+      .then(r => { if (r.ok) dot.classList.remove('offline'); })
+      .catch(() => {});
   }
 
   function switchRole(role, btn) {

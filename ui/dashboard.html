@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CCR Portal — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--forest);
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    :root {
+      --bg:           #ffffff;
+      --bg-deep:      #f4faf5;
+      --surface:      #f0f8f2;
+      --surface-2:    #e8f5ec;
+      --border:       rgba(45,110,58,0.13);
+      --border-mid:   rgba(45,110,58,0.22);
+      --lime:         #5aaa28;
+      --lime-bright:  #67be2e;
+      --lime-dim:     rgba(90,170,40,0.11);
+      --cream:        #1a3a22;
+      --cream-dim:    rgba(26,58,34,0.68);
+      --cream-dimmer: rgba(26,58,34,0.38);
+      --forest:       #0d2818;
+      --deep:         #061410;
+      --teal:         #0891b2;
+      --teal-dim:     rgba(8,145,178,0.09);
+      --blue:         #1d4ed8;
+      --blue-dim:     rgba(29,78,216,0.09);
+      --red:          #dc2626;
+      --green-ok:     #15803d;
+      --green-dim:    rgba(21,128,61,0.09);
+      --sidebar-w:    232px;
+      --shadow-sm:    0 1px 3px rgba(13,40,24,0.06), 0 1px 2px rgba(13,40,24,0.04);
+      --shadow-md:    0 4px 12px rgba(13,40,24,0.08), 0 2px 4px rgba(13,40,24,0.04);
+    }
+
+    /* ── Lucide icon sizing ── */
+    [data-lucide] { display: inline-block; vertical-align: middle; }
+    .icon-sm  { width: 14px; height: 14px; }
+    .icon-md  { width: 16px; height: 16px; }
+    .icon-lg  { width: 18px; height: 18px; }
+    .icon-xl  { width: 22px; height: 22px; }
+
+    /* ── Layout ── */
+    .shell { display: flex; flex: 1; overflow: hidden; height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w); flex-shrink: 0;
+      background: var(--bg-deep);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Logo block */
+    .sidebar-logo {
+      padding: 20px 18px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo-inner {
+      display: flex; align-items: center; gap: 11px;
+    }
+    .sidebar-logo img {
+      height: 46px; width: auto;
+      filter: drop-shadow(0 1px 3px rgba(13,40,24,0.12));
+    }
+    .sidebar-logo-text { display: flex; flex-direction: column; }
+    .sidebar-logo-name {
+      font-size: 0.88rem; font-weight: 800; color: var(--forest);
+      letter-spacing: -0.01em; line-height: 1.2;
+    }
+    .sidebar-logo-tag {
+      font-size: 0.65rem; font-weight: 600; color: var(--cream-dimmer);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px;
+    }
+
+    .sidebar-section-label {
+      padding: 18px 18px 5px;
+      font-size: 0.66rem; font-weight: 700; color: var(--cream-dimmer);
+      text-transform: uppercase; letter-spacing: 0.1em;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 14px; margin: 1px 8px;
+      border-radius: 8px; cursor: pointer;
+      font-size: 0.83rem; font-weight: 500; color: var(--cream-dim);
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-item:hover { background: var(--surface-2); color: var(--forest); }
+    .nav-item.active {
+      background: var(--lime-dim); color: var(--lime); font-weight: 600;
+      box-shadow: inset 3px 0 0 var(--lime);
+    }
+    .nav-item .nav-icon {
+      width: 32px; height: 32px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background 0.15s;
+    }
+    .nav-item:not(.active) .nav-icon { background: transparent; }
+    .nav-item.active .nav-icon { background: rgba(90,170,40,0.15); }
+    .nav-item .nav-label { flex: 1; }
+    .nav-badge {
+      background: var(--lime); color: #fff;
+      font-size: 0.62rem; font-weight: 800;
+      padding: 1px 6px; border-radius: 20px;
+      min-width: 18px; text-align: center; line-height: 1.6;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .user-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .user-card:hover { border-color: var(--lime); box-shadow: 0 0 0 3px var(--lime-dim); }
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--lime), #3a7d1a);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 800; color: #fff; flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 0.8rem; font-weight: 700; color: var(--forest); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 0.68rem; color: var(--cream-dimmer); margin-top: 1px; }
+
+    /* ── Main ── */
+    .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; background: var(--bg); }
+
+    /* ── Top Bar ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; height: 58px;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .topbar-left { display: flex; flex-direction: column; gap: 1px; }
+    .topbar-title { font-size: 0.95rem; font-weight: 700; color: var(--forest); letter-spacing: -0.01em; }
+    .topbar-sub   { font-size: 0.72rem; color: var(--cream-dimmer); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+    .role-toggle {
+      display: flex; gap: 2px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 3px;
+    }
+    .role-btn {
+      padding: 5px 13px; border-radius: 6px;
+      border: none; background: none;
+      font-size: 0.73rem; font-weight: 600; font-family: inherit;
+      cursor: pointer; color: var(--cream-dimmer);
+      transition: all 0.18s;
+    }
+    .role-btn.active { background: var(--lime-dim); color: var(--lime); }
+
+    .topbar-icon-btn {
+      position: relative; width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; cursor: pointer; color: var(--cream-dimmer);
+      transition: all 0.18s;
+    }
+    .topbar-icon-btn:hover { border-color: var(--border-mid); color: var(--forest); }
+    .notif-dot {
+      position: absolute; top: 6px; right: 6px;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--lime); border: 1.5px solid var(--bg);
+    }
+
+    /* ── Content ── */
+    .content { padding: 26px 28px; flex: 1; max-width: 1300px; }
+
+    .page-header { margin-bottom: 22px; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 800; color: var(--forest); letter-spacing: -0.02em; margin-bottom: 3px; }
+    .page-header p  { font-size: 0.82rem; color: var(--cream-dimmer); }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── Stat Cards ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 22px; }
+    .stat-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 18px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-card:hover { border-color: var(--border-mid); box-shadow: var(--shadow-md); }
+    .stat-label { font-size: 0.71rem; font-weight: 600; color: var(--cream-dimmer); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; }
+    .stat-value { font-size: 1.55rem; font-weight: 800; color: var(--forest); margin-bottom: 5px; letter-spacing: -0.02em; }
+    .stat-value.lime { color: var(--lime); }
+    .stat-value.gold { color: var(--teal); }
+    .stat-delta { font-size: 0.72rem; font-weight: 500; display: flex; align-items: center; gap: 3px; }
+    .stat-delta.up  { color: var(--green-ok); }
+    .stat-delta.neu { color: var(--cream-dimmer); }
+
+    /* ── Grid Layouts ── */
+    .two-col     { display: grid; grid-template-columns: 1fr 1fr;     gap: 16px; margin-bottom: 20px; }
+    .wide-narrow { display: grid; grid-template-columns: 1fr 310px;   gap: 16px; margin-bottom: 20px; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-header {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--bg-deep);
+    }
+    .card-header h3 { font-size: 0.85rem; font-weight: 700; color: var(--forest); letter-spacing: -0.01em; }
+    .card-header a  { font-size: 0.75rem; color: var(--lime); font-weight: 600; display: flex; align-items: center; gap: 3px; }
+    .card-body { padding: 16px 18px; }
+
+    /* ── Table ── */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      font-size: 0.67rem; font-weight: 700; color: var(--cream-dimmer);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 0 0 10px; text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table td {
+      padding: 12px 0; font-size: 0.82rem; color: var(--cream-dim);
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table td:first-child { color: var(--forest); font-weight: 600; }
+
+    /* ── Status Pills ── */
+    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 0.69rem; font-weight: 700; letter-spacing: 0.02em; }
+    .pill.active   { background: var(--lime-dim);  color: var(--lime); }
+    .pill.pending  { background: var(--teal-dim);  color: var(--teal); }
+    .pill.complete { background: var(--green-dim); color: var(--green-ok); }
+    .pill.review   { background: var(--blue-dim);  color: var(--blue); }
+
+    /* ── Progress ── */
+    .progress-track { height: 5px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+    .progress-fill  { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--lime), var(--lime-bright)); }
+    .progress-fill.gold { background: linear-gradient(90deg, var(--teal), #06b6d4); }
+
+    /* ── Activity ── */
+    .activity-list { list-style: none; }
+    .activity-item { display: flex; gap: 11px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .activity-item:last-child { border-bottom: none; }
+    .act-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 7px; }
+    .act-dot.lime  { background: var(--lime); }
+    .act-dot.gold  { background: var(--teal); }
+    .act-dot.blue  { background: var(--blue); }
+    .act-dot.green { background: var(--green-ok); }
+    .act-text { font-size: 0.81rem; color: var(--cream-dim); }
+    .act-text strong { color: var(--forest); font-weight: 600; }
+    .act-time { font-size: 0.69rem; color: var(--cream-dimmer); margin-top: 2px; }
+
+    /* ── Milestones ── */
+    .milestone-list { list-style: none; }
+    .milestone-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .milestone-item:last-child { border-bottom: none; }
+    .ms-icon {
+      width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ms-icon.lime  { background: var(--lime-dim);  color: var(--lime); }
+    .ms-icon.gold  { background: var(--teal-dim);  color: var(--teal); }
+    .ms-icon.green { background: var(--green-dim); color: var(--green-ok); }
+    .ms-icon.blue  { background: var(--blue-dim);  color: var(--blue); }
+    .ms-info { flex: 1; }
+    .ms-name { font-size: 0.82rem; font-weight: 600; color: var(--forest); margin-bottom: 1px; }
+    .ms-sub  { font-size: 0.72rem; color: var(--cream-dimmer); }
+    .ms-date { font-size: 0.71rem; color: var(--teal); font-weight: 700; white-space: nowrap; }
+
+    /* ── Mini Project Row ── */
+    .mini-proj {
+      display: flex; gap: 10px; align-items: center;
+      padding: 10px 12px; background: var(--bg-deep);
+      border: 1px solid var(--border);
+      border-radius: 9px; margin-bottom: 8px;
+      transition: border-color 0.18s;
+    }
+    .mini-proj:last-child { margin-bottom: 0; }
+    .mini-proj:hover { border-color: var(--border-mid); }
+    .mini-proj-icon {
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mini-proj-icon.solar    { background: var(--teal-dim);  color: var(--teal); }
+    .mini-proj-icon.storage  { background: var(--blue-dim);  color: var(--blue); }
+    .mini-proj-icon.minerals { background: var(--lime-dim);  color: var(--lime); }
+    .mini-proj-icon.wind     { background: var(--green-dim); color: var(--green-ok); }
+    .mini-proj-info { flex: 1; min-width: 0; }
+    .mini-proj-name { font-size: 0.83rem; font-weight: 600; color: var(--forest); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mini-proj-sub  { font-size: 0.71rem; color: var(--cream-dimmer); }
+    .mini-proj-right { text-align: right; flex-shrink: 0; }
+    .mini-proj-price { font-size: 0.85rem; font-weight: 700; }
+    .mini-proj-score { font-size: 0.68rem; color: var(--lime); font-weight: 600; margin-top: 1px; }
+
+    /* ── Project Cards (Marketplace) ── */
+    .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px,1fr)); gap: 14px; }
+    .project-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+      box-shadow: var(--shadow-sm); cursor: pointer;
+    }
+    .project-card:hover { border-color: var(--border-mid); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .pc-top { padding: 12px 14px 10px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-deep); }
+    .pc-type { display: inline-flex; align-items: center; gap: 5px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 5px; }
+    .pc-type.solar    { background: var(--teal-dim);  color: var(--teal); }
+    .pc-type.storage  { background: var(--blue-dim);  color: var(--blue); }
+    .pc-type.minerals { background: var(--lime-dim);  color: var(--lime); }
+    .pc-type.wind     { background: var(--green-dim); color: var(--green-ok); }
+    .ccr-v { display: inline-flex; align-items: center; gap: 4px; font-size: 0.68rem; color: var(--lime); font-weight: 700; }
+    .ccr-v-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--lime); display: flex; align-items: center; justify-content: center; }
+    .pc-body { padding: 10px 14px 12px; }
+    .pc-name     { font-size: 0.9rem; font-weight: 700; color: var(--forest); margin-bottom: 3px; letter-spacing: -0.01em; }
+    .pc-loc      { font-size: 0.75rem; color: var(--cream-dimmer); margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
+    .pc-row      { display: flex; justify-content: space-between; align-items: center; }
+    .pc-price    { font-size: 1rem; font-weight: 800; }
+    .pc-delivery { font-size: 0.72rem; color: var(--cream-dimmer); }
+    .pc-delivery strong { color: var(--cream-dim); font-weight: 600; }
+    .pc-footer { padding: 9px 14px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-deep); }
+    .pc-score { font-size: 0.73rem; color: var(--cream-dimmer); }
+    .pc-score strong { color: var(--lime); font-weight: 700; }
+    .pc-btn { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 6px; background: var(--lime-dim); color: var(--lime); border: 1px solid rgba(90,170,40,0.22); font-size: 0.74rem; font-weight: 600; cursor: pointer; transition: background 0.18s; font-family: inherit; }
+    .pc-btn:hover { background: rgba(90,170,40,0.18); }
+
+    /* ── Research Reports ── */
+    .report-list { display: flex; flex-direction: column; gap: 10px; }
+    .report-item { display: flex; gap: 12px; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px; transition: border-color 0.2s, box-shadow 0.2s; box-shadow: var(--shadow-sm); }
+    .report-item:hover { border-color: var(--border-mid); box-shadow: var(--shadow-md); }
+    .report-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .report-icon.new { background: var(--lime-dim); color: var(--lime); }
+    .report-icon.pdf { background: rgba(220,38,38,0.08); color: var(--red); }
+    .report-icon.locked { background: var(--surface-2); color: var(--cream-dimmer); }
+    .report-info { flex: 1; min-width: 0; }
+    .report-name { font-size: 0.85rem; font-weight: 600; color: var(--forest); margin-bottom: 2px; }
+    .report-meta { font-size: 0.72rem; color: var(--cream-dimmer); }
+    .report-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+    .report-tag { font-size: 0.66rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+    .report-tag.new-tag  { background: var(--lime-dim); color: var(--lime); }
+    .report-tag.read-tag { background: var(--surface-2); color: var(--cream-dimmer); }
+    .report-dl { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 6px; background: var(--lime-dim); color: var(--lime); border: 1px solid rgba(90,170,40,0.22); font-size: 0.73rem; font-weight: 600; cursor: pointer; transition: background 0.18s; font-family: inherit; }
+    .report-dl:hover { background: rgba(90,170,40,0.18); }
+    .report-dl.locked { background: var(--surface); color: var(--cream-dimmer); border-color: var(--border); cursor: default; }
+
+    /* ── Watchlist ── */
+    .watch-table { width: 100%; border-collapse: collapse; }
+    .watch-table th { font-size: 0.67rem; font-weight: 700; color: var(--cream-dimmer); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 10px 10px 0; text-align: left; border-bottom: 1px solid var(--border); }
+    .watch-table td { padding: 12px 10px 12px 0; font-size: 0.82rem; color: var(--cream-dim); border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .watch-table tr:last-child td { border-bottom: none; }
+    .watch-table td:first-child { color: var(--forest); font-weight: 600; }
+    .remove-btn { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; background: none; border: 1px solid transparent; color: var(--cream-dimmer); cursor: pointer; transition: all 0.18s; }
+    .remove-btn:hover { background: rgba(220,38,38,0.08); border-color: rgba(220,38,38,0.2); color: var(--red); }
+
+    /* ── Notifications ── */
+    .notif-list { display: flex; flex-direction: column; }
+    .notif-item { display: flex; gap: 12px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-bubble { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .notif-bubble.lime  { background: var(--lime-dim);  color: var(--lime); }
+    .notif-bubble.gold  { background: var(--teal-dim);  color: var(--teal); }
+    .notif-bubble.blue  { background: var(--blue-dim);  color: var(--blue); }
+    .notif-bubble.green { background: var(--green-dim); color: var(--green-ok); }
+    .notif-bubble.red   { background: rgba(220,38,38,0.08); color: var(--red); }
+    .notif-text { flex: 1; }
+    .notif-title { font-size: 0.85rem; font-weight: 600; color: var(--forest); margin-bottom: 2px; }
+    .notif-desc  { font-size: 0.78rem; color: var(--cream-dimmer); line-height: 1.45; }
+    .notif-right { text-align: right; flex-shrink: 0; }
+    .notif-time  { font-size: 0.69rem; color: var(--cream-dimmer); margin-bottom: 5px; }
+    .unread-dot  { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); margin-left: auto; }
+
+    /* ── Profile ── */
+    .profile-grid { display: grid; grid-template-columns: 256px 1fr; gap: 16px; }
+    .profile-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 22px; box-shadow: var(--shadow-sm); }
+    .profile-avatar-lg { width: 58px; height: 58px; border-radius: 50%; background: linear-gradient(135deg, var(--lime), #3a7d1a); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0 auto 12px; letter-spacing: 0.02em; }
+    .profile-name { text-align: center; font-size: 1rem; font-weight: 700; color: var(--forest); margin-bottom: 3px; letter-spacing: -0.01em; }
+    .profile-sub-text { text-align: center; font-size: 0.76rem; color: var(--cream-dimmer); margin-bottom: 14px; }
+    .profile-divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+    .profile-stat-row { display: flex; justify-content: space-between; margin-bottom: 9px; }
+    .profile-stat-row .label { font-size: 0.75rem; color: var(--cream-dimmer); }
+    .profile-stat-row .val   { font-size: 0.75rem; color: var(--cream-dim); font-weight: 600; }
+    .profile-stat-row .val.lime { color: var(--lime); }
+
+    .sub-banner { background: var(--surface); border: 1px solid var(--border-mid); border-radius: 10px; padding: 14px; margin-top: 12px; }
+    .sub-banner-tag  { font-size: 0.68rem; font-weight: 700; color: var(--lime); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+    .sub-banner-plan { font-size: 0.92rem; font-weight: 800; color: var(--forest); margin-bottom: 3px; letter-spacing: -0.01em; }
+    .sub-banner-date { font-size: 0.72rem; color: var(--cream-dimmer); }
+
+    .form-section h3 { font-size: 0.92rem; font-weight: 700; color: var(--forest); margin-bottom: 14px; letter-spacing: -0.01em; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .field label { display: block; font-size: 0.74rem; font-weight: 600; color: var(--cream-dim); margin-bottom: 5px; }
+    .field input, .field select {
+      width: 100%; padding: 8px 11px;
+      background: var(--bg); border: 1px solid var(--border-mid);
+      border-radius: 7px; color: var(--forest); font-size: 0.83rem; font-family: inherit;
+      outline: none; transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    .field input:focus, .field select:focus { border-color: var(--lime); box-shadow: 0 0 0 3px var(--lime-dim); }
+    .save-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 20px; border-radius: 8px; background: var(--lime); color: #fff; border: none; font-size: 0.83rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: background 0.18s; }
+    .save-btn:hover { background: var(--lime-bright); }
+
+    /* ── Filters ── */
+    .filters-bar { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 18px; }
+    .filt { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--cream-dimmer); font-size: 0.76rem; font-weight: 500; font-family: inherit; cursor: pointer; transition: all 0.18s; }
+    .filt.active, .filt:hover { background: var(--lime-dim); border-color: rgba(90,170,40,0.3); color: var(--lime); font-weight: 600; }
+
+    /* ── Section row ── */
+    .section-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .section-row h2 { font-size: 0.92rem; font-weight: 700; color: var(--forest); }
+    .section-row a  { font-size: 0.77rem; color: var(--lime); font-weight: 600; display: flex; align-items: center; gap: 3px; }
+
+    /* ── Subscription banner ── */
+    .sub-active-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+      background: var(--surface); border: 1px solid var(--border-mid);
+      border-radius: 12px; padding: 16px 20px; margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .sub-active-bar .left-tag { font-size: 0.68rem; font-weight: 700; color: var(--lime); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+    .sub-active-bar .plan { font-size: 0.95rem; font-weight: 700; color: var(--forest); }
+    .sub-active-bar .plan-sub { font-size: 0.76rem; color: var(--cream-dimmer); margin-top: 2px; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 3px; }
+
+    @media (max-width: 900px) {
+      :root { --sidebar-w: 60px; }
+      .sidebar-logo-text, .nav-item .nav-label, .nav-badge, .sidebar-section-label, .user-info { display: none; }
+      .nav-item { justify-content: center; padding: 10px; }
+      .sidebar-logo-inner { justify-content: center; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .wide-narrow, .two-col { grid-template-columns: 1fr; }
+      .profile-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Dark Sidebar ── */
+    .sidebar { background: var(--deep); border-right-color: rgba(255,255,255,0.07); }
+    .sidebar-logo { border-bottom-color: rgba(255,255,255,0.08); }
+    .sidebar-logo-name { color: #fff; }
+    .sidebar-logo-tag { color: rgba(255,255,255,0.35); }
+    .sidebar-section-label { color: rgba(255,255,255,0.28); letter-spacing: 0.12em; }
+    .nav-item { color: rgba(255,255,255,0.55); font-weight: 600; }
+    .nav-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+    .nav-item.active {
+      background: rgba(90,170,40,0.22);
+      color: var(--lime-bright);
+      box-shadow: inset 3px 0 0 var(--lime);
+    }
+    .nav-item.active .nav-icon { background: rgba(90,170,40,0.18); }
+    .sidebar-footer { border-top-color: rgba(255,255,255,0.08); }
+    .user-card { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.1); }
+    .user-card:hover { border-color: var(--lime); box-shadow: 0 0 0 3px rgba(90,170,40,0.15); }
+    .user-name { color: #fff; }
+    .user-role { color: rgba(255,255,255,0.44); }
+
+    /* ── Unit labels (MWh, /t, etc.) ── */
+    .unit {
+      font-size: 0.72em; font-weight: 500;
+      color: var(--lime); opacity: 0.68;
+      letter-spacing: 0.01em;
+    }
+    /* ── Money: uniform black across all price/capital displays ── */
+    .price-cell,
+    .mini-proj-price,
+    .pc-price,
+    .money { color: #111; font-weight: 700; }
+    .price-cell { font-weight: 700; }
+    .price-cell .unit { color: var(--lime); }
+
+    /* ── Typography consistency ── */
+    .data-table td { font-weight: 500; }
+    .watch-table td { font-weight: 500; }
+    .watch-table td:first-child { font-weight: 700; }
+
+    /* ── Meridian: full-bleed iframe panel ── */
+    #view-meridian.active {
+      position: fixed;
+      top: 58px;
+      left: var(--sidebar-w);
+      right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+      background: var(--bg);
+    }
+    .meridian-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 18px;
+      background: var(--deep);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+    .meridian-bar-left { display: flex; align-items: center; gap: 10px; }
+    .meridian-bar-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--lime);
+      box-shadow: 0 0 6px rgba(90,170,40,0.6);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    .meridian-bar-dot.offline { background: rgba(255,255,255,0.2); box-shadow: none; animation: none; }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.4; }
+    }
+    .meridian-bar-name  { font-size: 0.84rem; font-weight: 700; color: #fff; letter-spacing: 0.01em; }
+    .meridian-bar-sub   { font-size: 0.67rem; color: rgba(255,255,255,0.38); margin-left: 4px; }
+    .meridian-bar-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 6px;
+      background: rgba(90,170,40,0.18); color: var(--lime-bright);
+      border: 1px solid rgba(90,170,40,0.28);
+      font-size: 0.73rem; font-weight: 600; font-family: inherit; cursor: pointer;
+      transition: background 0.18s;
+    }
+    .meridian-bar-btn:hover { background: rgba(90,170,40,0.28); }
+    #meridian-frame { flex: 1; width: 100%; border: none; display: none; }
+    #meridian-offline {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      background: var(--bg-deep);
+    }
+    .meridian-offline-card {
+      text-align: center; max-width: 400px; padding: 0 20px;
+    }
+    .meridian-offline-icon {
+      width: 56px; height: 56px; border-radius: 16px;
+      background: var(--lime-dim); color: var(--lime);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .meridian-offline-title { font-size: 1.1rem; font-weight: 800; color: var(--forest); margin-bottom: 6px; letter-spacing: -0.02em; }
+    .meridian-offline-sub { font-size: 0.82rem; color: var(--cream-dimmer); line-height: 1.55; margin-bottom: 22px; }
+    .meridian-offline-steps {
+      text-align: left; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 18px; margin-bottom: 20px;
+    }
+    .meridian-offline-steps p { font-size: 0.78rem; font-weight: 700; color: var(--forest); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .meridian-offline-steps ol { padding-left: 18px; }
+    .meridian-offline-steps li { font-size: 0.8rem; color: var(--cream-dim); line-height: 1.7; }
+    .meridian-offline-steps code { font-family: 'SF Mono', monospace; font-size: 0.76rem; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; color: var(--lime); }
+    .meridian-retry-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 22px; border-radius: 8px;
+      background: var(--lime); color: #fff; border: none;
+      font-size: 0.83rem; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: background 0.18s;
+    }
+    .meridian-retry-btn:hover { background: var(--lime-bright); }
+
+    @media (max-width: 900px) {
+      #view-meridian.active { left: 60px; }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-inner">
+        <img src="logo.avif" alt="CCR" />
+        <div class="sidebar-logo-text">
+          <span class="sidebar-logo-name">Catalyst Capital</span>
+          <span class="sidebar-logo-tag">Research Portal</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section-label">Main</div>
+    <div class="nav-item active" onclick="nav('overview',this)">
+      <div class="nav-icon"><i data-lucide="layout-dashboard" class="icon-md"></i></div>
+      <span class="nav-label">Overview</span>
+    </div>
+    <div class="nav-item" onclick="nav('contracts',this)">
+      <div class="nav-icon"><i data-lucide="file-text" class="icon-md"></i></div>
+      <span class="nav-label">My Contracts</span>
+    </div>
+    <div class="nav-item" onclick="nav('marketplace',this)">
+      <div class="nav-icon"><i data-lucide="store" class="icon-md"></i></div>
+      <span class="nav-label">Marketplace</span>
+      <span class="nav-badge">5</span>
+    </div>
+    <div class="nav-item" onclick="nav('watchlist',this)">
+      <div class="nav-icon"><i data-lucide="bookmark" class="icon-md"></i></div>
+      <span class="nav-label">Watchlist</span>
+    </div>
+    <div class="nav-item" onclick="nav('research',this)">
+      <div class="nav-icon"><i data-lucide="microscope" class="icon-md"></i></div>
+      <span class="nav-label">Research</span>
+      <span class="nav-badge">2</span>
+    </div>
+    <div class="nav-item" onclick="nav('meridian',this)">
+      <div class="nav-icon"><i data-lucide="bot" class="icon-md"></i></div>
+      <span class="nav-label">Meridian AI</span>
+    </div>
+
+    <div class="sidebar-section-label">Account</div>
+    <div class="nav-item" onclick="nav('notifications',this)">
+      <div class="nav-icon"><i data-lucide="bell" class="icon-md"></i></div>
+      <span class="nav-label">Notifications</span>
+      <span class="nav-badge">4</span>
+    </div>
+    <div class="nav-item" onclick="nav('profile',this)">
+      <div class="nav-icon"><i data-lucide="user" class="icon-md"></i></div>
+      <span class="nav-label">Profile</span>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-card" onclick="nav('profile',null)">
+        <div class="user-avatar">DM</div>
+        <div class="user-info">
+          <div class="user-name">Dylan Mong</div>
+          <div class="user-role">Institutional Buyer</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title" id="topbar-title">Overview</span>
+        <span class="topbar-sub" id="topbar-sub">Welcome back, Dylan</span>
+      </div>
+      <div class="topbar-right">
+        <div class="role-toggle">
+          <button class="role-btn active" onclick="switchRole('buyer',this)">Buyer</button>
+          <button class="role-btn" onclick="switchRole('developer',this)">Developer</button>
+        </div>
+        <button class="topbar-icon-btn" onclick="nav('notifications',null)">
+          <i data-lucide="bell" class="icon-md"></i>
+          <span class="notif-dot"></span>
+        </button>
+        <button class="topbar-icon-btn" onclick="nav('profile',null)">
+          <i data-lucide="settings" class="icon-md"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══ OVERVIEW ══ -->
+      <div class="view active" id="view-overview">
+        <div class="page-header">
+          <h1>Good morning, Dylan</h1>
+          <p>Here's what's happening across your CCR portfolio — April 16, 2026</p>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Active Contracts</div>
+            <div class="stat-value lime">2</div>
+            <div class="stat-delta neu">2 projects in delivery</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Capital Committed</div>
+            <div class="stat-value money">$4.2M</div>
+            <div class="stat-delta up"><i data-lucide="trending-up" class="icon-sm"></i> Across 2 contracts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">MWh Secured</div>
+            <div class="stat-value">6,200</div>
+            <div class="stat-delta up"><i data-lucide="trending-up" class="icon-sm"></i> 2027–2028 delivery</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">New Verified Projects</div>
+            <div class="stat-value">5</div>
+            <div class="stat-delta up"><i data-lucide="trending-up" class="icon-sm"></i> 2 added this week</div>
+          </div>
+        </div>
+
+        <div class="wide-narrow">
+          <div class="card">
+            <div class="card-header">
+              <h3>Active Forward Contracts</h3>
+              <a href="#" onclick="nav('contracts',null);return false;"><i data-lucide="arrow-right" class="icon-sm"></i> View all</a>
+            </div>
+            <div class="card-body">
+              <table class="data-table">
+                <thead><tr><th>Project</th><th>Type</th><th>MWh</th><th>Price</th><th>Delivery</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td>Mojave Sun Solar Project</td>
+                    <td><span style="color:var(--teal);font-size:0.76rem;font-weight:600;">Solar</span></td>
+                    <td>3,500 <span class="unit">MWh</span></td><td class="price-cell">$48<span class="unit">/MWh</span></td><td>2027 Q1</td>
+                    <td><span class="pill active">Active</span></td>
+                  </tr>
+                  <tr>
+                    <td>Desert Peak BESS Facility</td>
+                    <td><span style="color:var(--blue);font-size:0.76rem;font-weight:600;">Storage</span></td>
+                    <td>2,700 <span class="unit">MWh</span></td><td class="price-cell">$62<span class="unit">/MWh</span></td><td>2026 Q4</td>
+                    <td><span class="pill pending">Pending</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3>Upcoming Milestones</h3></div>
+            <div class="card-body" style="padding:10px 14px;">
+              <ul class="milestone-list">
+                <li class="milestone-item">
+                  <div class="ms-icon gold"><i data-lucide="building-2" class="icon-md"></i></div>
+                  <div class="ms-info"><div class="ms-name">Mojave Sun — Construction Start</div><div class="ms-sub">Phase 1 groundbreaking</div></div>
+                  <div class="ms-date">May 3</div>
+                </li>
+                <li class="milestone-item">
+                  <div class="ms-icon blue"><i data-lucide="clipboard-list" class="icon-md"></i></div>
+                  <div class="ms-info"><div class="ms-name">Desert Peak — Permit Final</div><div class="ms-sub">State grid interconnect</div></div>
+                  <div class="ms-date">May 18</div>
+                </li>
+                <li class="milestone-item">
+                  <div class="ms-icon green"><i data-lucide="coins" class="icon-md"></i></div>
+                  <div class="ms-info"><div class="ms-name">Escrow Release #1</div><div class="ms-sub">Mojave Sun — $840K</div></div>
+                  <div class="ms-date">Jun 1</div>
+                </li>
+                <li class="milestone-item">
+                  <div class="ms-icon lime"><i data-lucide="refresh-cw" class="icon-md"></i></div>
+                  <div class="ms-info"><div class="ms-name">Subscription Renewal</div><div class="ms-sub">CCR Research — Annual</div></div>
+                  <div class="ms-date">Jul 16</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><h3>New Verified Projects</h3><a href="#" onclick="nav('marketplace',null);return false;"><i data-lucide="arrow-right" class="icon-sm"></i> Browse all</a></div>
+            <div class="card-body">
+              <div class="mini-proj">
+                <div class="mini-proj-icon solar"><i data-lucide="sun" class="icon-md"></i></div>
+                <div class="mini-proj-info"><div class="mini-proj-name">Mojave Sun Solar Project</div><div class="mini-proj-sub">San Bernardino, CA · 120 MW</div></div>
+                <div class="mini-proj-right"><div class="mini-proj-price">$48<span class="unit">/MWh</span></div><div class="mini-proj-score">Score: A–</div></div>
+              </div>
+              <div class="mini-proj">
+                <div class="mini-proj-icon storage"><i data-lucide="battery-charging" class="icon-md"></i></div>
+                <div class="mini-proj-info"><div class="mini-proj-name">Desert Peak BESS Facility</div><div class="mini-proj-sub">Maricopa, AZ · 80 <span class="unit">MWh</span></div></div>
+                <div class="mini-proj-right"><div class="mini-proj-price">$62<span class="unit">/MWh</span></div><div class="mini-proj-score">Score: B+</div></div>
+              </div>
+              <div class="mini-proj">
+                <div class="mini-proj-icon minerals"><i data-lucide="gem" class="icon-md"></i></div>
+                <div class="mini-proj-info"><div class="mini-proj-name">Nevada Lithium Basin</div><div class="mini-proj-sub">Humboldt, NV · Lithium</div></div>
+                <div class="mini-proj-right"><div class="mini-proj-price">$14K<span class="unit">/t</span></div><div class="mini-proj-score">Score: A</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3>Recent Activity</h3></div>
+            <div class="card-body" style="padding:10px 14px;">
+              <ul class="activity-list">
+                <li class="activity-item"><div class="act-dot lime"></div><div><div class="act-text"><strong>Nevada Lithium Basin</strong> received CCR-Verified status</div><div class="act-time">2 hours ago</div></div></li>
+                <li class="activity-item"><div class="act-dot gold"></div><div><div class="act-text">Construction update on <strong>Mojave Sun</strong> — site prep 40% complete</div><div class="act-time">Yesterday</div></div></li>
+                <li class="activity-item"><div class="act-dot blue"></div><div><div class="act-text">New research report: <strong>Desert Peak BESS Deep Dive</strong></div><div class="act-time">2 days ago</div></div></li>
+                <li class="activity-item"><div class="act-dot green"></div><div><div class="act-text">Forward contract executed — <strong>Desert Peak BESS</strong>, $2.1M</div><div class="act-time">Apr 12</div></div></li>
+                <li class="activity-item"><div class="act-dot lime"></div><div><div class="act-text">2 new projects listed in the <strong>Marketplace</strong></div><div class="act-time">Apr 10</div></div></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ CONTRACTS ══ -->
+      <div class="view" id="view-contracts">
+        <div class="page-header"><h1>My Contracts</h1><p>Your active and historical power forward contracts</p></div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-label">Active</div><div class="stat-value lime">2</div></div>
+          <div class="stat-card"><div class="stat-label">Total Capital</div><div class="stat-value money">$4.2M</div></div>
+          <div class="stat-card"><div class="stat-label">MWh Secured</div><div class="stat-value">6,200</div></div>
+          <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-value">1</div></div>
+        </div>
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header"><h3>Active Forward Contracts</h3></div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead><tr><th>Project</th><th>Type</th><th>Capacity</th><th>Price</th><th>Capital In</th><th>Delivery</th><th>Construction</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Mojave Sun Solar Project</td>
+                  <td><span style="color:var(--teal);font-size:0.76rem;font-weight:600;">Solar</span></td>
+                  <td>3,500 <span class="unit">MWh</span></td><td class="price-cell">$48<span class="unit">/MWh</span></td><td class="money">$2.1M</td><td>2027 Q1</td>
+                  <td><div style="display:flex;align-items:center;gap:7px;min-width:90px;"><div style="flex:1;"><div class="progress-track"><div class="progress-fill" style="width:40%;"></div></div></div><span style="font-size:0.69rem;color:var(--cream-dimmer);">40%</span></div></td>
+                  <td><span class="pill active">Active</span></td>
+                </tr>
+                <tr>
+                  <td>Desert Peak BESS Facility</td>
+                  <td><span style="color:var(--blue);font-size:0.76rem;font-weight:600;">Storage</span></td>
+                  <td>2,700 <span class="unit">MWh</span></td><td class="price-cell">$62<span class="unit">/MWh</span></td><td class="money">$2.1M</td><td>2026 Q4</td>
+                  <td><div style="display:flex;align-items:center;gap:7px;min-width:90px;"><div style="flex:1;"><div class="progress-track"><div class="progress-fill gold" style="width:15%;"></div></div></div><span style="font-size:0.69rem;color:var(--cream-dimmer);">15%</span></div></td>
+                  <td><span class="pill pending">Pending</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Completed Contracts</h3></div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead><tr><th>Project</th><th>Type</th><th>MWh</th><th>Price</th><th>Capital</th><th>Delivered</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Yuma Basin Wind Farm</td>
+                  <td><span style="color:var(--green-ok);font-size:0.76rem;font-weight:600;">Wind</span></td>
+                  <td>1,800 <span class="unit">MWh</span></td><td class="price-cell">$41<span class="unit">/MWh</span></td><td class="money">$980K</td><td>2025 Q3</td>
+                  <td><span class="pill complete">Complete</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ MARKETPLACE ══ -->
+      <div class="view" id="view-marketplace">
+        <div class="page-header"><h1>Marketplace</h1><p>Browse all CCR-verified energy projects available for forward contracts</p></div>
+        <div class="filters-bar">
+          <button class="filt active">All Projects</button>
+          <button class="filt">Solar</button>
+          <button class="filt">Battery Storage</button>
+          <button class="filt">Critical Minerals</button>
+          <button class="filt">Wind</button>
+          <button class="filt">2026 Delivery</button>
+          <button class="filt">2027 Delivery</button>
+          <button class="filt">2028 Delivery</button>
+        </div>
+        <div class="market-grid">
+          <div class="project-card">
+            <div class="pc-top"><span class="pc-type solar"><i data-lucide="sun" class="icon-sm"></i>Solar</span><span class="ccr-v"><span class="ccr-v-dot"><i data-lucide="check" style="width:8px;height:8px;color:#fff;stroke-width:3;"></i></span>CCR-Verified</span></div>
+            <div class="pc-body"><div class="pc-name">Mojave Sun Solar Project</div><div class="pc-loc"><i data-lucide="map-pin" class="icon-sm"></i>San Bernardino County, CA</div><div class="pc-row"><span class="pc-price">$48<span class="unit">/MWh</span></span><span class="pc-delivery">Delivery: <strong>2027 Q1</strong></span></div></div>
+            <div class="pc-footer"><span class="pc-score">Score: <strong>A–</strong></span><button class="pc-btn" onclick="nav('research',null)"><i data-lucide="file-text" class="icon-sm"></i>View Report</button></div>
+          </div>
+          <div class="project-card">
+            <div class="pc-top"><span class="pc-type storage"><i data-lucide="battery-charging" class="icon-sm"></i>Battery Storage</span><span class="ccr-v"><span class="ccr-v-dot"><i data-lucide="check" style="width:8px;height:8px;color:#fff;stroke-width:3;"></i></span>CCR-Verified</span></div>
+            <div class="pc-body"><div class="pc-name">Desert Peak BESS Facility</div><div class="pc-loc"><i data-lucide="map-pin" class="icon-sm"></i>Maricopa County, AZ</div><div class="pc-row"><span class="pc-price">$62<span class="unit">/MWh</span></span><span class="pc-delivery">Delivery: <strong>2026 Q4</strong></span></div></div>
+            <div class="pc-footer"><span class="pc-score">Score: <strong>B+</strong></span><button class="pc-btn" onclick="nav('research',null)"><i data-lucide="file-text" class="icon-sm"></i>View Report</button></div>
+          </div>
+          <div class="project-card">
+            <div class="pc-top"><span class="pc-type minerals"><i data-lucide="gem" class="icon-sm"></i>Critical Minerals</span><span class="ccr-v"><span class="ccr-v-dot"><i data-lucide="check" style="width:8px;height:8px;color:#fff;stroke-width:3;"></i></span>CCR-Verified</span></div>
+            <div class="pc-body"><div class="pc-name">Nevada Lithium Basin Project</div><div class="pc-loc"><i data-lucide="map-pin" class="icon-sm"></i>Humboldt County, NV</div><div class="pc-row"><span class="pc-price">$14K<span class="unit">/t</span></span><span class="pc-delivery">Delivery: <strong>2027–2028</strong></span></div></div>
+            <div class="pc-footer"><span class="pc-score">Score: <strong>A</strong></span><button class="pc-btn" onclick="nav('research',null)"><i data-lucide="file-text" class="icon-sm"></i>View Report</button></div>
+          </div>
+          <div class="project-card">
+            <div class="pc-top"><span class="pc-type wind"><i data-lucide="wind" class="icon-sm"></i>Wind</span><span class="ccr-v"><span class="ccr-v-dot"><i data-lucide="check" style="width:8px;height:8px;color:#fff;stroke-width:3;"></i></span>CCR-Verified</span></div>
+            <div class="pc-body"><div class="pc-name">Cascade Ridge Wind Project</div><div class="pc-loc"><i data-lucide="map-pin" class="icon-sm"></i>Sherman County, OR</div><div class="pc-row"><span class="pc-price">$39<span class="unit">/MWh</span></span><span class="pc-delivery">Delivery: <strong>2028 Q2</strong></span></div></div>
+            <div class="pc-footer"><span class="pc-score">Score: <strong>B+</strong></span><button class="pc-btn" onclick="nav('research',null)"><i data-lucide="file-text" class="icon-sm"></i>View Report</button></div>
+          </div>
+          <div class="project-card">
+            <div class="pc-top"><span class="pc-type solar"><i data-lucide="sun" class="icon-sm"></i>Solar</span><span class="ccr-v"><span class="ccr-v-dot"><i data-lucide="check" style="width:8px;height:8px;color:#fff;stroke-width:3;"></i></span>CCR-Verified</span></div>
+            <div class="pc-body"><div class="pc-name">Sonora Flats Solar Farm</div><div class="pc-loc"><i data-lucide="map-pin" class="icon-sm"></i>Pinal County, AZ</div><div class="pc-row"><span class="pc-price">$44<span class="unit">/MWh</span></span><span class="pc-delivery">Delivery: <strong>2027 Q3</strong></span></div></div>
+            <div class="pc-footer"><span class="pc-score">Score: <strong>A–</strong></span><button class="pc-btn" onclick="nav('research',null)"><i data-lucide="file-text" class="icon-sm"></i>View Report</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ WATCHLIST ══ -->
+      <div class="view" id="view-watchlist">
+        <div class="page-header"><h1>Watchlist</h1><p>Projects you're tracking — get alerts when status changes</p></div>
+        <div class="card">
+          <div class="card-header"><h3>Saved Projects</h3></div>
+          <div class="card-body">
+            <table class="watch-table">
+              <thead><tr><th>Project</th><th>Type</th><th>Location</th><th>Price</th><th>Score</th><th>Delivery</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Nevada Lithium Basin</td>
+                  <td><span style="color:var(--lime);font-size:0.76rem;font-weight:600;">Minerals</span></td>
+                  <td>Humboldt, NV</td><td class="price-cell">$14K<span class="unit">/t</span></td>
+                  <td style="color:var(--lime);font-weight:700;">A</td><td>2027–2028</td>
+                  <td><span class="pill active">Verified</span></td>
+                  <td><button class="remove-btn"><i data-lucide="x" class="icon-sm"></i></button></td>
+                </tr>
+                <tr>
+                  <td>Cascade Ridge Wind</td>
+                  <td><span style="color:var(--green-ok);font-size:0.76rem;font-weight:600;">Wind</span></td>
+                  <td>Sherman, OR</td><td class="price-cell">$39<span class="unit">/MWh</span></td>
+                  <td style="color:var(--lime);font-weight:700;">B+</td><td>2028 Q2</td>
+                  <td><span class="pill active">Verified</span></td>
+                  <td><button class="remove-btn"><i data-lucide="x" class="icon-sm"></i></button></td>
+                </tr>
+                <tr>
+                  <td>Sonora Flats Solar</td>
+                  <td><span style="color:var(--teal);font-size:0.76rem;font-weight:600;">Solar</span></td>
+                  <td>Pinal, AZ</td><td class="price-cell">$44<span class="unit">/MWh</span></td>
+                  <td style="color:var(--lime);font-weight:700;">A–</td><td>2027 Q3</td>
+                  <td><span class="pill review">In Review</span></td>
+                  <td><button class="remove-btn"><i data-lucide="x" class="icon-sm"></i></button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ RESEARCH ══ -->
+      <div class="view" id="view-research">
+        <div class="page-header"><h1>Research Reports</h1><p>CCR-verified project research — included with your subscription</p></div>
+        <div class="sub-active-bar">
+          <div>
+            <div class="left-tag">Active Subscription</div>
+            <div class="plan">CCR Research Access — Annual Plan</div>
+            <div class="plan-sub">$2,000/year · Renews Jul 16, 2026 · Unlimited report access</div>
+          </div>
+          <span class="pill active" style="font-size:0.76rem;padding:5px 12px;">Active</span>
+        </div>
+        <div class="section-row"><h2>Latest Reports</h2></div>
+        <div class="report-list">
+          <div class="report-item">
+            <div class="report-icon new"><i data-lucide="file-bar-chart-2" class="icon-lg"></i></div>
+            <div class="report-info"><div class="report-name">Desert Peak BESS Facility — Deep Dive</div><div class="report-meta">Published Apr 14, 2026 · 18 pages · Battery Storage</div></div>
+            <div class="report-actions"><span class="report-tag new-tag">New</span><button class="report-dl"><i data-lucide="download" class="icon-sm"></i>Download</button></div>
+          </div>
+          <div class="report-item">
+            <div class="report-icon new"><i data-lucide="file-bar-chart-2" class="icon-lg"></i></div>
+            <div class="report-info"><div class="report-name">Nevada Lithium Basin — Resource Estimate & Viability</div><div class="report-meta">Published Apr 10, 2026 · 24 pages · Critical Minerals</div></div>
+            <div class="report-actions"><span class="report-tag new-tag">New</span><button class="report-dl"><i data-lucide="download" class="icon-sm"></i>Download</button></div>
+          </div>
+          <div class="report-item">
+            <div class="report-icon pdf"><i data-lucide="file-text" class="icon-lg"></i></div>
+            <div class="report-info"><div class="report-name">Mojave Sun Solar Project — Full Due Diligence Report</div><div class="report-meta">Published Mar 28, 2026 · 21 pages · Solar</div></div>
+            <div class="report-actions"><span class="report-tag read-tag">Read</span><button class="report-dl"><i data-lucide="download" class="icon-sm"></i>Download</button></div>
+          </div>
+          <div class="report-item">
+            <div class="report-icon pdf"><i data-lucide="file-text" class="icon-lg"></i></div>
+            <div class="report-info"><div class="report-name">Q1 2026 Energy Market Overview — CCR Research</div><div class="report-meta">Published Mar 15, 2026 · 12 pages · Market Research</div></div>
+            <div class="report-actions"><span class="report-tag read-tag">Read</span><button class="report-dl"><i data-lucide="download" class="icon-sm"></i>Download</button></div>
+          </div>
+          <div class="report-item" style="opacity:0.5;">
+            <div class="report-icon locked"><i data-lucide="lock" class="icon-lg"></i></div>
+            <div class="report-info"><div class="report-name">Cascade Ridge Wind — Preliminary Report</div><div class="report-meta">In progress — estimated May 2026</div></div>
+            <div class="report-actions"><button class="report-dl locked"><i data-lucide="clock" class="icon-sm"></i>Coming Soon</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ NOTIFICATIONS ══ -->
+      <div class="view" id="view-notifications">
+        <div class="page-header"><h1>Notifications</h1><p>Construction alerts, milestone updates, and new deal flow</p></div>
+        <div class="card">
+          <div class="card-header">
+            <h3>All Notifications</h3>
+            <a href="#" onclick="return false;" style="color:var(--cream-dimmer);font-size:0.75rem;">Mark all as read</a>
+          </div>
+          <div class="card-body" style="padding:4px 18px;">
+            <div class="notif-list">
+              <div class="notif-item"><div class="notif-bubble lime"><i data-lucide="check-circle" class="icon-lg"></i></div><div class="notif-text"><div class="notif-title">Nevada Lithium Basin is now CCR-Verified</div><div class="notif-desc">Full research report is now available. Score: A.</div></div><div class="notif-right"><div class="notif-time">2 hrs ago</div><div class="unread-dot"></div></div></div>
+              <div class="notif-item"><div class="notif-bubble gold"><i data-lucide="hard-hat" class="icon-lg"></i></div><div class="notif-text"><div class="notif-title">Construction Update — Mojave Sun Solar</div><div class="notif-desc">Site preparation is 40% complete. On track for 2027 Q1 delivery.</div></div><div class="notif-right"><div class="notif-time">Yesterday</div><div class="unread-dot"></div></div></div>
+              <div class="notif-item"><div class="notif-bubble blue"><i data-lucide="file-bar-chart-2" class="icon-lg"></i></div><div class="notif-text"><div class="notif-title">New Report: Desert Peak BESS Deep Dive</div><div class="notif-desc">18-page CCR research report is ready to download.</div></div><div class="notif-right"><div class="notif-time">Apr 14</div><div class="unread-dot"></div></div></div>
+              <div class="notif-item"><div class="notif-bubble green"><i data-lucide="coins" class="icon-lg"></i></div><div class="notif-text"><div class="notif-title">Escrow Milestone Confirmed — Desert Peak BESS</div><div class="notif-desc">Milestone 1 documentation submitted. Escrow release pending CCR review.</div></div><div class="notif-right"><div class="notif-time">Apr 12</div><div class="unread-dot"></div></div></div>
+              <div class="notif-item"><div class="notif-bubble lime"><i data-lucide="store" class="icon-lg"></i></div><div class="notif-text"><div class="notif-title">2 New Projects Added to Marketplace</div><div class="notif-desc">Cascade Ridge Wind and Sonora Flats Solar are now listed.</div></div><div class="notif-right"><div class="notif-time">Apr 10</div></div></div>
+              <div class="notif-item"><div class="notif-bubble gold"><i data-lucide="triangle-alert" class="icon-lg"></i></div><div class="notif-text"><div class="notif-title">Risk Update — Desert Peak BESS</div><div class="notif-desc">Minor permitting delay noted. Delivery timeline unchanged.</div></div><div class="notif-right"><div class="notif-time">Apr 8</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PROFILE ══ -->
+      <div class="view" id="view-profile">
+        <div class="page-header"><h1>Profile & Settings</h1><p>Manage your account, subscription, and preferences</p></div>
+        <div class="profile-grid">
+          <div>
+            <div class="profile-card">
+              <div class="profile-avatar-lg">DM</div>
+              <div class="profile-name">Dylan Mong</div>
+              <div class="profile-sub-text">Institutional Buyer · Data Center / Tech</div>
+              <hr class="profile-divider" />
+              <div class="profile-stat-row"><span class="label">Member Since</span><span class="val">Jan 2026</span></div>
+              <div class="profile-stat-row"><span class="label">Active Contracts</span><span class="val lime">2</span></div>
+              <div class="profile-stat-row"><span class="label">Reports Accessed</span><span class="val">4</span></div>
+              <div class="profile-stat-row"><span class="label">MWh Secured</span><span class="val lime">6,200</span></div>
+              <div class="profile-stat-row"><span class="label">Capital Deployed</span><span class="val money">$4.2M</span></div>
+            </div>
+            <div class="sub-banner">
+              <div class="sub-banner-tag">Subscription</div>
+              <div class="sub-banner-plan">Annual Research Access</div>
+              <div class="sub-banner-date">$2,000/year · Renews Jul 16, 2026</div>
+              <button style="margin-top:10px;width:100%;padding:7px;border-radius:7px;background:var(--lime-dim);color:var(--lime);border:1px solid rgba(90,170,40,0.22);font-size:0.76rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px;">
+                <i data-lucide="credit-card" class="icon-sm"></i>Manage Subscription
+              </button>
+            </div>
+          </div>
+          <div class="profile-card">
+            <div class="form-section">
+              <h3>Account Details</h3>
+              <div class="form-row">
+                <div class="field"><label>First Name</label><input type="text" value="Dylan" /></div>
+                <div class="field"><label>Last Name</label><input type="text" value="Mong" /></div>
+              </div>
+              <div class="form-row">
+                <div class="field"><label>Email</label><input type="email" value="dylan.mong@gmail.com" /></div>
+                <div class="field"><label>Phone</label><input type="text" placeholder="+1 (000) 000-0000" /></div>
+              </div>
+              <div class="form-row">
+                <div class="field"><label>Organization</label><input type="text" placeholder="Company name" /></div>
+                <div class="field"><label>Buyer Type</label><select><option selected>Data Center / Tech</option><option>Manufacturer</option><option>Private Equity / Fund</option><option>Utility</option><option>Other</option></select></div>
+              </div>
+              <hr class="profile-divider" style="margin:18px 0;" />
+              <h3>Procurement Preferences</h3>
+              <div class="form-row">
+                <div class="field"><label>Annual Target (MWh)</label><input type="text" placeholder="e.g. 10,000" /></div>
+                <div class="field"><label>Preferred Delivery Window</label><select><option>2026</option><option selected>2027</option><option>2028</option></select></div>
+              </div>
+              <div class="form-row">
+                <div class="field"><label>Preferred Energy Type</label><select><option selected>Any</option><option>Solar</option><option>Battery Storage</option><option>Wind</option><option>Critical Minerals</option></select></div>
+                <div class="field"><label>Price Ceiling ($/MWh)</label><input type="text" placeholder="e.g. $70" /></div>
+              </div>
+              <button class="save-btn"><i data-lucide="check" class="icon-sm"></i>Save Changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ MERIDIAN AI ══ -->
+      <div class="view" id="view-meridian">
+        <!-- Top bar — rendered by JS once status is known -->
+        <div class="meridian-bar">
+          <div class="meridian-bar-left">
+            <div class="meridian-bar-dot offline" id="meridian-dot"></div>
+            <span class="meridian-bar-name">Meridian</span>
+            <span class="meridian-bar-sub">CCR AI Research Platform</span>
+          </div>
+          <button class="meridian-bar-btn" onclick="window.open('/chat','_blank')">
+            <i data-lucide="external-link" class="icon-sm"></i>Open full window
+          </button>
+        </div>
+
+        <!-- Live iframe (shown when Meridian is running) -->
+        <iframe id="meridian-frame" src="/chat"></iframe>
+
+        <!-- Offline fallback -->
+        <div id="meridian-offline">
+          <div class="meridian-offline-card">
+            <div class="meridian-offline-icon">
+              <i data-lucide="bot" style="width:26px;height:26px;"></i>
+            </div>
+            <div class="meridian-offline-title">Meridian isn't running</div>
+            <div class="meridian-offline-sub">Meridian is CCR's proprietary AI research platform — it searches your research docs, pulls live EIA energy data, and sweeps sector news in real time. Start it to connect.</div>
+            <div class="meridian-offline-steps">
+              <p>If Meridian is not loading, try refreshing the page. If the problem persists, please contact your CCR account manager.</p>
+            </div>
+            <button class="meridian-retry-btn" onclick="checkMeridian()">
+              <i data-lucide="refresh-cw" class="icon-sm"></i>Retry connection
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // Initialize Lucide icons
+  lucide.createIcons();
+
+  const titles = {
+    overview:      ['Overview',           'Welcome back, Dylan'],
+    contracts:     ['My Contracts',       'Your active and historical forward contracts'],
+    marketplace:   ['Marketplace',        'Browse CCR-verified energy projects'],
+    watchlist:     ['Watchlist',          'Projects you are tracking'],
+    research:      ['Research',           'CCR research reports'],
+    meridian:      ['Meridian AI',        'CCR proprietary AI research platform'],
+    notifications: ['Notifications',      'Construction alerts and updates'],
+    profile:       ['Profile & Settings', 'Manage your account'],
+  };
+
+  function nav(id, el) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const view = document.getElementById('view-' + id);
+    if (view) view.classList.add('active');
+    if (titles[id]) {
+      document.getElementById('topbar-title').textContent = titles[id][0];
+      document.getElementById('topbar-sub').textContent   = titles[id][1];
+    }
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (el) el.classList.add('active');
+    document.querySelector('.main').scrollTo(0, 0);
+    if (id === 'meridian') checkMeridian();
+  }
+
+  // ── Meridian connectivity ──────────────────────────────────────────────────
+  function checkMeridian() {
+    const frame   = document.getElementById('meridian-frame');
+    const offline = document.getElementById('meridian-offline');
+    const dot     = document.getElementById('meridian-dot');
+
+    fetch('/api/me')
+      .then(r => {
+        if (!r.ok) throw new Error('Not authenticated');
+        // Meridian is up — iframe is already pointing to /chat
+        frame.style.display = 'block';
+        offline.style.display = 'none';
+        dot.classList.remove('offline');
+      })
+      .catch(() => {
+        frame.style.display = 'none';
+        offline.style.display = 'flex';
+        dot.classList.add('offline');
+      });
+  }
+
+  function switchRole(role, btn) {
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelector('.user-role').textContent = role === 'buyer' ? 'Institutional Buyer' : 'Project Developer';
+  }
+
+  document.querySelectorAll('.filt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.closest('.filters-bar').querySelectorAll('.filt').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const row = btn.closest('tr');
+      row.style.transition = 'opacity 0.3s';
+      row.style.opacity = '0';
+      setTimeout(() => row.remove(), 300);
+    });
+  });
+</script>
+</body>
+</html>

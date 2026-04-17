@@ -1,0 +1,11 @@
+.env
+_config
+clients.json
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+.venv/
+*.log
+build/
+dist/

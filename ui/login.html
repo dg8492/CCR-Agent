@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meridian — Client Access</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      background: #ffffff;
+    }
+
+    /* White animated background */
+    .bg {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(-40deg, #ffffff, #f4faf5, #eef8ef, #f8fff8, #f2f9f3, #ffffff);
+      background-size: 400% 400%;
+      animation: shift 18s ease infinite;
+      z-index: 0;
+    }
+
+    @keyframes shift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Subtle dot grid overlay */
+    .bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(40,100,52,0.07) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
+
+    /* Wave canvas */
+    #login-canvas {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    }
+
+    /* Spotlight behind card */
+    .spotlight {
+      position: fixed;
+      width: 800px; height: 800px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(141,198,63,0.10) 0%, rgba(30,90,40,0.07) 35%, transparent 65%);
+      filter: blur(20px);
+      z-index: 0; pointer-events: none;
+      animation: spotpulse 6s ease-in-out infinite;
+    }
+    @keyframes spotpulse {
+      0%,100% { transform: translate(-50%,-50%) scale(1);   opacity: 0.8; }
+      50%      { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
+    }
+
+    /* Aurora layers */
+    .aurora-a {
+      position: fixed;
+      top: -40%; left: -20%;
+      width: 140%; height: 90%;
+      background:
+        radial-gradient(ellipse 65% 55% at 25% 45%, rgba(20,80,40,0.70) 0%, transparent 65%),
+        radial-gradient(ellipse 55% 60% at 75% 25%, rgba(50,120,28,0.55) 0%, transparent 60%),
+        radial-gradient(ellipse 45% 40% at 50% 80%, rgba(141,198,63,0.28) 0%, transparent 60%);
+      filter: blur(55px);
+      z-index: 0; pointer-events: none;
+      animation: aurora-a 16s ease-in-out infinite alternate;
+    }
+    .aurora-b {
+      position: fixed;
+      top: 10%; left: -30%;
+      width: 160%; height: 80%;
+      background:
+        radial-gradient(ellipse 80% 45% at 55% 55%, rgba(12,55,22,0.75) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 65% at 12% 65%, rgba(70,150,25,0.40) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 35% at 88% 40%, rgba(100,180,40,0.30) 0%, transparent 55%);
+      filter: blur(50px);
+      z-index: 0; pointer-events: none;
+      animation: aurora-b 20s ease-in-out infinite alternate;
+    }
+    @keyframes aurora-a {
+      0%   { transform: skewY(-3deg) skewX(1deg) translateY(0)    scaleX(1);    opacity: 0.85; }
+      50%  { transform: skewY(4deg)  skewX(-2deg) translateY(-50px) scaleX(1.08); opacity: 1;    }
+      100% { transform: skewY(-2deg) skewX(2deg)  translateY(25px)  scaleX(0.96); opacity: 0.9;  }
+    }
+    @keyframes aurora-b {
+      0%   { transform: skewY(2deg) translateX(0)     translateY(40px);  opacity: 0.7; }
+      50%  { transform: skewY(-4deg) translateX(-70px) translateY(-30px); opacity: 1;   }
+      100% { transform: skewY(3deg) translateX(50px)  translateY(15px);  opacity: 0.8; }
+    }
+
+    /* Glow orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 {
+      width: 700px; height: 700px; opacity: 0.40;
+      background: radial-gradient(circle, #b8e8a0 0%, transparent 70%);
+      top: -200px; right: -200px;
+      animation: float1 15s ease-in-out infinite;
+    }
+    .orb-2 {
+      width: 520px; height: 520px; opacity: 0.35;
+      background: radial-gradient(circle, #c8f090 0%, transparent 70%);
+      bottom: -130px; left: -130px;
+      animation: float2 19s ease-in-out infinite;
+    }
+    .orb-3 {
+      width: 340px; height: 340px; opacity: 0.25;
+      background: radial-gradient(circle, #a0d870 0%, transparent 70%);
+      top: 55%; left: 55%;
+      animation: float3 24s ease-in-out infinite;
+    }
+
+    @keyframes float1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(-55px, 50px) scale(1.05); }
+      66%       { transform: translate(30px, -60px) scale(0.96); }
+    }
+    @keyframes float2 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(50px, -40px) scale(1.07); }
+      66%       { transform: translate(-35px, 32px) scale(0.93); }
+    }
+    @keyframes float3 {
+      0%, 100% { transform: translate(0, 0); }
+      50%       { transform: translate(-80px, 55px); }
+    }
+
+    /* Card */
+    .card {
+      position: relative;
+      z-index: 10;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 52px 48px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow:
+        0 20px 60px rgba(45,110,58,0.12),
+        0 0 0 1px rgba(45,110,58,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.9);
+      animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(24px);
+    }
+
+    @keyframes rise {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Logo in corner */
+    .card-logo {
+      position: absolute;
+      top: 22px;
+      right: 22px;
+      height: 64px;
+      width: auto;
+      opacity: 0.92;
+    }
+
+    /* Top accent line */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 40px; right: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #8dc63f, transparent);
+      border-radius: 0 0 2px 2px;
+    }
+
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #8dc63f;
+      margin-bottom: 14px;
+      animation: fadein 0.6s 0.2s both;
+    }
+
+    .wordmark {
+      font-family: 'Playfair Display', serif;
+      font-size: 52px;
+      font-weight: 800;
+      color: #0d2818;
+      letter-spacing: -2px;
+      line-height: 1;
+      margin-bottom: 6px;
+      animation: fadein 0.6s 0.25s both;
+    }
+
+    .submark {
+      font-size: 12px;
+      font-weight: 400;
+      color: #7aab7a;
+      letter-spacing: 0.3px;
+      margin-bottom: 40px;
+      animation: fadein 0.6s 0.3s both;
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(0,0,0,0.08);
+      margin-bottom: 36px;
+      animation: fadein 0.6s 0.35s both;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #3d6b47;
+      margin-bottom: 10px;
+      animation: fadein 0.6s 0.4s both;
+    }
+
+    .input-wrap {
+      position: relative;
+      margin-bottom: 14px;
+      animation: fadein 0.6s 0.45s both;
+    }
+
+    .lock-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .lock-icon svg {
+      width: 15px; height: 15px;
+      fill: none; stroke: #0d2818; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+      display: block;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      background: #f4faf5;
+      color: #1a3a22;
+      border: 1.5px solid rgba(45,110,58,0.20);
+      border-radius: 10px;
+      padding: 14px 14px 14px 44px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      letter-spacing: 4px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="password"]:focus {
+      border-color: #3d8c48;
+      box-shadow: 0 0 0 4px rgba(45,110,58,0.10);
+    }
+
+    input[type="password"]::placeholder {
+      letter-spacing: 0;
+      color: rgba(45,110,58,0.40);
+      font-size: 13px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: #8dc63f;
+      color: #0d2818;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      animation: fadein 0.6s 0.5s both;
+    }
+
+    .btn:hover {
+      background: #9ed648;
+      box-shadow: 0 8px 32px rgba(141,198,63,0.35);
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { background: #c8d8b0; color: rgba(13,40,24,0.4); cursor: not-allowed; box-shadow: none; }
+
+    .btn svg {
+      width: 15px; height: 15px;
+      fill: none; stroke: #0d2818; stroke-width: 2.5;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .error-msg {
+      display: none;
+      margin-top: 12px;
+      padding: 11px 14px;
+      background: rgba(220,38,38,0.08);
+      border: 1px solid rgba(220,38,38,0.2);
+      border-radius: 8px;
+      font-size: 13px;
+      color: #b91c1c;
+      align-items: center;
+      gap: 8px;
+      animation: fadein 0.3s both;
+    }
+
+    .error-msg svg {
+      width: 14px; height: 14px; flex-shrink: 0;
+      fill: none; stroke: #b91c1c; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .card-footer {
+      margin-top: 28px;
+      text-align: center;
+      font-size: 11px;
+      color: rgba(13,40,24,0.28);
+      letter-spacing: 0.3px;
+      animation: fadein 0.6s 0.55s both;
+    }
+
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <canvas id="login-canvas"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="card">
+    <img
+      class="card-logo"
+      src="/logo.png"
+      alt="CCR"
+      onerror="this.style.display='none';"
+    />
+
+    <p class="eyebrow">Client Access</p>
+    <h1 class="wordmark">Meridian</h1>
+    <p class="submark">by Catalyst Capital Research</p>
+    <div class="divider"></div>
+
+    <form id="loginForm">
+      <label class="field-label" for="token">Access Token</label>
+      <div class="input-wrap">
+        <span class="lock-icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </span>
+        <input
+          type="password"
+          id="token"
+          placeholder="Paste your token"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+
+      <button type="submit" class="btn" id="submitBtn">
+        <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Enter Meridian
+      </button>
+
+      <div class="error-msg" id="errorMsg">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="errorText">Invalid token. Contact your CCR representative.</span>
+      </div>
+    </form>
+
+    <p class="card-footer">Authorized CCR clients only &nbsp;·&nbsp; © 2026 Catalyst Capital Research</p>
+  </div>
+
+  <script>
+    const form      = document.getElementById('loginForm');
+    const tokenEl   = document.getElementById('token');
+    const submitBtn = document.getElementById('submitBtn');
+    const errorMsg  = document.getElementById('errorMsg');
+    const errorText = document.getElementById('errorText');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = tokenEl.value.trim();
+      if (!token) return;
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<svg viewBox="0 0 24 24" style="animation:spin 0.7s linear infinite;stroke:#0d2818;fill:none;stroke-width:2.5;stroke-linecap:round" width="15" height="15"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></svg> Verifying...`;
+      errorMsg.style.display = 'none';
+
+      try {
+        const res  = await fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          submitBtn.innerHTML = `<svg viewBox="0 0 24 24" style="stroke:#0d2818;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round" width="15" height="15"><polyline points="20 6 9 17 4 12"/></svg> Verified`;
+          setTimeout(() => window.location.href = '/chat', 400);
+        } else {
+          errorMsg.style.display = 'flex';
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<svg viewBox="0 0 24 24" style="stroke:#0d2818;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round" width="15" height="15"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Enter Meridian`;
+          tokenEl.value = '';
+          tokenEl.focus();
+        }
+      } catch {
+        errorText.textContent = 'Connection error. Please try again.';
+        errorMsg.style.display = 'flex';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<svg viewBox="0 0 24 24" style="stroke:#0d2818;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round" width="15" height="15"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Enter Meridian`;
+      }
+    });
+
+    tokenEl.focus();
+
+    // ── Flowing ribbon animation (CCR brand style) ────
+    (function () {
+      const canvas = document.getElementById('login-canvas');
+      const ctx    = canvas.getContext('2d');
+      let W, H;
+      function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+
+      // Dark-outside → lime-center → dark-outside
+      const WAVES = [
+        { c:[6,22,10],    a:0.08, th:70,  f:0.0008, amp:22, sp:0.00012, ph:0.0  },
+        { c:[10,38,18],   a:0.28, th:90,  f:0.0010, amp:30, sp:0.00016, ph:1.1  },
+        { c:[14,55,26],   a:0.55, th:110, f:0.0013, amp:38, sp:0.00020, ph:2.2  },
+        { c:[20,76,36],   a:0.78, th:125, f:0.0016, amp:46, sp:0.00023, ph:3.3  },
+        { c:[36,110,30],  a:0.88, th:135, f:0.0019, amp:52, sp:0.00027, ph:4.4  },
+        { c:[72,155,26],  a:0.93, th:140, f:0.0022, amp:56, sp:0.00030, ph:5.5  },
+        { c:[36,110,30],  a:0.86, th:132, f:0.0018, amp:50, sp:0.00026, ph:6.6  },
+        { c:[20,76,36],   a:0.74, th:120, f:0.0015, amp:44, sp:0.00022, ph:7.7  },
+        { c:[14,55,26],   a:0.50, th:105, f:0.0012, amp:36, sp:0.00019, ph:8.8  },
+        { c:[10,38,18],   a:0.22, th:85,  f:0.0009, amp:28, sp:0.00015, ph:9.9  },
+        { c:[6,22,10],    a:0.06, th:65,  f:0.0007, amp:20, sp:0.00011, ph:11.0 },
+      ];
+      const SPREAD = 68;
+
+      function baseLine(x) {
+        const t = x / W;
+        return (0.18 + t * 0.30) * H - Math.sin(t * Math.PI) * 0.06 * H;
+      }
+
+      function wy(x, w, idx, t) {
+        const base = baseLine(x) + (idx - (WAVES.length - 1) / 2) * SPREAD;
+        return base
+          + Math.sin(x * w.f - t * w.sp + w.ph) * w.amp
+          + Math.sin(x * w.f * 1.65 - t * w.sp * 1.4 + w.ph + 0.9) * w.amp * 0.32;
+      }
+
+      function drawWave(w, idx, t) {
+        const [r,g,b] = w.c;
+        ctx.beginPath();
+        ctx.moveTo(0, wy(0, w, idx, t));
+        for (let x = 4; x <= W; x += 4) ctx.lineTo(x, wy(x, w, idx, t));
+        for (let x = W; x >= 0; x -= 4) ctx.lineTo(x, wy(x, w, idx, t) + w.th);
+        ctx.closePath();
+        const g2 = ctx.createLinearGradient(0, 0, W, 0);
+        g2.addColorStop(0,    `rgba(${r},${g},${b},0)`);
+        g2.addColorStop(0.03, `rgba(${r},${g},${b},${w.a})`);
+        g2.addColorStop(0.92, `rgba(${r},${g},${b},${(w.a * 0.85).toFixed(2)})`);
+        g2.addColorStop(1,    `rgba(${r},${g},${b},0)`);
+        ctx.fillStyle = g2;
+        ctx.fill();
+      }
+
+      const t0 = performance.now();
+      function frame(now) {
+        ctx.clearRect(0, 0, W, H);
+        const t = now - t0;
+        WAVES.forEach((w, i) => drawWave(w, i, t));
+        requestAnimationFrame(frame);
+      }
+
+      resize();
+      window.addEventListener('resize', resize);
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>

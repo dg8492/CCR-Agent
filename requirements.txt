@@ -1,0 +1,8 @@
+flask
+anthropic
+python-dotenv
+requests
+pypdf
+python-docx
+rank-bm25
+duckduckgo-search

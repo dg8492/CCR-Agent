@@ -1,0 +1,42 @@
+============================================
+  MERIDIAN — Catalyst Capital Research
+  Client Research Platform
+============================================
+
+GETTING STARTED
+---------------
+1. Unzip this folder somewhere on your Mac (Desktop is fine)
+2. Double-click "launch_mac.command"
+3. If macOS asks "Allow Terminal to access files?" — click OK
+4. Your browser will open automatically to the Meridian portal
+5. Enter your access token to log in
+
+FIRST RUN NOTE
+--------------
+The first time you launch, Meridian will download its dependencies.
+This takes about 30 seconds and only happens once.
+Every launch after that will be fast.
+
+REQUIREMENTS
+------------
+- macOS 11 (Big Sur) or later
+- Python 3 installed
+
+  Don't have Python? Install it in two steps:
+    1. Install Homebrew: https://brew.sh
+       (paste the install command from that page into Terminal)
+    2. Run: brew install python3
+
+LOGGING IN
+----------
+Use the access token provided to you by Catalyst Capital Research.
+Do not share your token — it is unique to your account.
+
+STOPPING MERIDIAN
+-----------------
+Press Ctrl+C in the Terminal window, or simply close the Terminal window.
+
+SUPPORT
+-------
+Contact Catalyst Capital Research at:
+catalystcapitalresearch.com

@@ -539,7 +539,7 @@ def dashboard():
 @app.route('/embed')
 def embed():
     if not session.get('authenticated'):
-        return '<p style="font-family:sans-serif;padding:2rem;color:#666">Session expired. Please <a href="/">log in again</a>.</p>', 401
+        return '<body style="margin:0;background:#fee;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif"><p style="font-size:1.1rem;color:#c00">Session expired — <a href="/">log in again</a></p></body>', 401
     return no_cache(send_from_directory(UI_DIR, 'chat.html'))
 
 @app.route('/logo.png')

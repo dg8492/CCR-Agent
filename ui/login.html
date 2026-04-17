@@ -433,7 +433,7 @@
 
         if (data.success) {
           submitBtn.innerHTML = `<svg viewBox="0 0 24 24" style="stroke:#0d2818;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round" width="15" height="15"><polyline points="20 6 9 17 4 12"/></svg> Verified`;
-          setTimeout(() => window.location.href = '/chat', 400);
+          setTimeout(() => window.location.href = '/dashboard', 400);
         } else {
           errorMsg.style.display = 'flex';
           submitBtn.disabled = false;

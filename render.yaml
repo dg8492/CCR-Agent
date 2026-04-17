@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: meridian
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: EIA_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: CLIENTS_JSON
+        sync: false
+      - key: PORT
+        value: 10000
